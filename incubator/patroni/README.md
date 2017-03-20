@@ -50,22 +50,25 @@ postgres=>
 
 The following tables lists the configurable parameters of the patroni chart and their default values.
 
-|       Parameter         |           Description               |                         Default                     |
-|-------------------------|-------------------------------------|-----------------------------------------------------|
-| `Name`                  | Service name                        | `patroni`                                           |
-| `Spilo.Image`           | Container image name                | `registry.opensource.zalan.do/acid/spilo-9.5`       |
-| `Spilo.Version`         | Container image tag                 | `1.0-p5`                                            |
-| `ImagePullPolicy`       | Container pull policy               | `IfNotPresent`                                      |
-| `Replicas`              | k8s petset replicas                 | `5`                                                 |
-| `Component`             | k8s selector key                    | `patroni`                                           |
-| `Resources.Cpu`         | container requested cpu             | `100m`                                              |
-| `Resources.Memory`      | container requested memory          | `512Mi`                                             |
-| `Resources.Storage`     | Persistent volume size              | `1Gi`                                               |
-| `Credentials.Superuser` | password for the superuser          | `tea`                                               |
-| `Credentials.Admin`     | password for the admin user         | `cola`                                              |
-| `Credentials.Standby`   | password for the replication user   | `pinacolada`                                        |
-| `Etcd.Host`             | host name of etcd cluster           | not used (Etcd.Discovery is used instead            |
-| `Etcd.Discovery`        | domain name of etcd cluster         | `<release-name>-etcd.<namespace>.svc.cluster.local` |
+|       Parameter          |           Description                |                         Default                     |
+|--------------------------|--------------------------------------|-----------------------------------------------------|
+| `Name`                   | Service name                         | `patroni`                                           |
+| `Spilo.Image`            | Container image name                 | `registry.opensource.zalan.do/acid/spilo-9.5`       |
+| `Spilo.Version`          | Container image tag                  | `1.0-p5`                                            |
+| `ImagePullPolicy`        | Container pull policy                | `IfNotPresent`                                      |
+| `Replicas`               | k8s petset replicas                  | `5`                                                 |
+| `Component`              | k8s selector key                     | `patroni`                                           |
+| `Resources.Cpu`          | container requested cpu              | `100m`                                              |
+| `Resources.Memory`       | container requested memory           | `512Mi`                                             |
+| `Resources.Storage`      | Persistent volume size               | `1Gi`                                               |
+| `ServiceAccountName`     | Name of the service account to use   |                                                     |
+| `Credentials.Superuser`  | password for the superuser           | `tea`                                               |
+| `Credentials.Admin`      | password for the admin user          | `cola`                                              |
+| `Credentials.Standby`    | password for the replication user    | `pinacolada`                                        |
+| `Etcd.Host`              | host name of etcd cluster            | not used (Etcd.Discovery is used instead            |
+| `Etcd.Discovery`         | domain name of etcd cluster          | `<release-name>-etcd.<namespace>.svc.cluster.local` |
+| `AWS.Kube2IAMAccountName`| AWS account configured with Kube2IAM |                                                     |
+| `AWS.S3BucketName`       | AWS S3 Bucket to put WAL files in    |                                                     |
 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`.
 

@@ -18,7 +18,14 @@ spec:
         release: {{.Release.Name | quote }}
         chart: "{{.Chart.Name}}-{{.Chart.Version}}"
         component: "{{.Release.Name}}-{{.Values.Component}}"
+      {{if .Values.AWS.Kube2IAMAccountName }}
+      annotations:
+        iam.amazonaws.com/role: {{ .Values.AWS.Kube2IAMAccountName | quote }}
+      {{end}}
     spec:
+      {{if .Values.ServiceAccountName }}
+      serviceAccountName: {{ .Values.ServiceAccountName | quote }}
+      {{end}}
       containers:
       - name: spilo
         image: "{{ .Values.Spilo.Image }}:{{ .Values.Spilo.Version }}"
@@ -47,8 +54,10 @@ spec:
         {{end}}
         - name: SCOPE
           value: {{ template "fullname" . }}
-        - name: USE_WALE
-          value: ""
+        {{if .Values.AWS.S3BucketName }}
+        - name: WAL_S3_BUCKET
+          value: {{ .Values.AWS.S3BucketName | quote }}
+        {{end}}
         - name: PGROOT
           value: /home/postgres/pgdata/pgroot
         - name: POD_NAMESPACE
