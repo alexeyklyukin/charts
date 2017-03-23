@@ -69,6 +69,7 @@ The following tables lists the configurable parameters of the patroni chart and 
 | `Etcd.Discovery`         | domain name of etcd cluster          | `<release-name>-etcd.<namespace>.svc.cluster.local` |
 | `AWS.Kube2IAMAccountName`| AWS account configured with Kube2IAM |                                                     |
 | `AWS.S3BucketName`       | AWS S3 Bucket to put WAL files in    |                                                     |
+| `Local.WALHostPath`      | Path on the node for the WAL archive |                                                     |
 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`.
 
