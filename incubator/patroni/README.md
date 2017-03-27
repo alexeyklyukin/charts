@@ -1,16 +1,16 @@
 # Patroni Helm Chart
 
-This directory contains a Kubernetes chart to deploy a five node patroni cluster using a petset.
+This directory contains a Kubernetes chart to deploy a five node patroni cluster using a statefulset.
 
 ## Prerequisites Details
-* Kubernetes 1.3 with alpha APIs enabled
+* Kubernetes 1.5
 * PV support on the underlying infrastructure
 
-## PetSet Details
-* http://kubernetes.io/docs/user-guide/petset/
+## Statefulset Details
+* https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
 
-## PetSet Caveats
-* http://kubernetes.io/docs/user-guide/petset/#alpha-limitations
+## Statefulset Caveats
+* https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#limitations
 
 ## Todo
 * Make namespace configurable
@@ -64,6 +64,7 @@ Base backups are currently not supported with minikube (this is the limitation o
 
 The following tables lists the configurable parameters of the patroni chart and their default values.
 
+
 |       Parameter          |           Description                |                         Default                     |
 |--------------------------|--------------------------------------|-----------------------------------------------------|
 | `Name`                   | Service name                         | `patroni`                                           |
@@ -104,7 +105,7 @@ In order to remove everything you created a simple `helm delete <release-name>` 
 $ release=<release-name>
 $ helm delete $release
 $ grace=$(kubectl get po $release-patroni-0 --template '{{.spec.terminationGracePeriodSeconds}}')
-$ kubectl delete petset,po -l release=$release
+$ kubectl delete statefulset,po -l release=$release
 $ sleep $grace
 $ kubectl delete pvc -l release=$release
 ```
