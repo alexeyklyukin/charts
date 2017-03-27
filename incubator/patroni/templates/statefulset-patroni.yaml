@@ -18,7 +18,29 @@ spec:
         release: {{.Release.Name | quote }}
         chart: "{{.Chart.Name}}-{{.Chart.Version}}"
         component: "{{.Release.Name}}-{{.Values.Component}}"
+      annotations:
+      {{if .Values.AWS.Kube2IAMAccountName }}
+        iam.amazonaws.com/role: {{ .Values.AWS.Kube2IAMAccountName | quote }}
+      {{end}}
+      {{if .Values.Local.WALHostPath}}
+        pod.beta.kubernetes.io/init-containers: '[
+          {
+            "name": "init-wal-archive",
+            "image": "busybox",
+            "command": ["sh", "-c", "mkdir -p /archive/wal/{{ template "fullname" . }} && chmod -R 777 /archive/wal/{{ template "fullname" . }}"],
+            "volumeMounts": [
+              {
+                "mountPath": "/archive",
+                "name": "wal-archive"
+              }
+            ]
+          }
+        ]'
+      {{end}}
     spec:
+      {{if .Values.ServiceAccountName }}
+      serviceAccountName: {{ .Values.ServiceAccountName | quote }}
+      {{end}}
       containers:
       - name: spilo
         image: "{{ .Values.Spilo.Image }}:{{ .Values.Spilo.Version }}"
@@ -47,8 +69,10 @@ spec:
         {{end}}
         - name: SCOPE
           value: {{ template "fullname" . }}
-        - name: USE_WALE
-          value: ""
+        {{if .Values.AWS.S3BucketName }}
+        - name: WAL_S3_BUCKET
+          value: {{ .Values.AWS.S3BucketName | quote }}
+        {{end}}
         - name: PGROOT
           value: /home/postgres/pgdata/pgroot
         - name: POD_NAMESPACE
@@ -56,6 +80,17 @@ spec:
             fieldRef:
               apiVersion: v1
               fieldPath: metadata.namespace
+        {{if .Values.Local.WALHostPath}}
+        - name: PATRONI_CONFIGURATION
+          value: | ## https://github.com/zalando/patroni#yaml-configuration
+            bootstrap:
+              dcs:
+                postgresql:
+                  parameters:
+                    archive_command: 'test ! -f /archive/wal/{{ template "fullname" . }}/%f && cp %p /archive/wal/{{ template "fullname" . }}/%f'
+                  recovery_conf:
+                    restore_command: 'cp /archive/wal/{{ template "fullname" . }}/%f %p'
+        {{end}}
         ports:
         - containerPort: 8008
         - containerPort: 5432
@@ -69,15 +104,26 @@ spec:
         - mountPath: /etc/patroni
           name: patroni-config
           readOnly: true
+      {{if .Values.Local.WALHostPath}}
+        - name: wal-archive
+          mountPath: /archive
+      {{end}}
       volumes:
       - name: patroni-config
         secret:
           secretName: {{ template "fullname" . }}
+      {{if .Values.Local.WALHostPath}}
+      - name: wal-archive
+        hostPath:
+          path: {{ .Values.Local.WALHostPath }}
+      {{end}}
   volumeClaimTemplates:
   - metadata:
       name: pgdata
       annotations:
-        volume.alpha.kubernetes.io/storage-class: default
+        {{if .Values.StorageClass}}
+        volume.beta.kubernetes.io/storage-class: {{ .Values.StorageClass }}
+        {{end}}
     spec:
       accessModes: [ "ReadWriteOnce" ]
       resources:

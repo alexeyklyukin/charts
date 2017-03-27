@@ -10,13 +10,19 @@ Spilo:
   Version: 1.2-p17
 
 # How many postgres containers to spawn
-Replicas: 5
+Replicas: 3
 
 # Resource limits per replica
 Resources:
   Cpu: 100m
   Memory: 512Mi
   Storage: 1Gi
+
+StorageClass: # leave blank for a default one
+
+# Define the serviceAccount the pods should run with if neccessary.
+# Patroni requires write access to the namespace it runs at in order to update labels and endpoints.
+ServiceAccountName:
 
 # Credentials used by Patroni
 # * more information: https://github.com/zalando/patroni/blob/master/docs/SETTINGS.rst#postgresql
@@ -29,3 +35,12 @@ Credentials:
 Etcd:
   Host: # fill-in value for etcd host (etcd.default.svc.cluster.local), leave blank to use the discovery parameter
   Discovery: # leave blank to use vendored etcd chart
+
+
+# Configuration for clusters running on AWS to use S3 buckets for WAL and backup storage
+AWS:
+  Kube2IAMAccountName: # if you run https://github.com/jtblin/kube2iam fill-in with an AWS accont configured to access S3
+  S3BucketName: # fill-in with the name of the S3 bucket to put WAL segments and backups to. Your pod should be able to access it for read and write.
+
+Local:
+  WALHostPath: # set to a directory path to enable shipping WALs between pods using HostPath mount. The path will be created if it doesn't exist
